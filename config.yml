@@ -1,6 +1,6 @@
 graphhopper:
   import.osm.ignored_highways: ''
-  datareader.file: some.pbf
+  datareader.file: poland-latest.osm.pbf
   
 
   profiles:
@@ -52,9 +52,7 @@ logging:
 
     - type: file
       current_log_filename: logs/graphhopper.log
-      archived_log_filename_pattern: logs/graphhopper-%d{YYYY-ww}.log.gz
-      archived_file_count: 52
-      time_zone: UTC
+      archive: false
       log_format: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
 
   loggers:
@@ -65,7 +63,6 @@ logging:
         - type: console
           log_format: "[%level] %msg%n"
         - type: file
-          current_log_filename: logs/osm-warnings.log
-          archived_log_filename_pattern: logs/osm-warnings-%d{YYYY-ww}.log.gz
-          archived_file_count: 52
+          current_log_filename: logs/graphhopper.log
+          archive: false
           log_format: "[%level] %msg%n"
