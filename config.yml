@@ -24,6 +24,7 @@ graphhopper:
   routing.non_ch.max_waypoint_distance: 100000
 
   graph.dataaccess.default_type: RAM_STORE
+  graph.location: graph-cache/graph-ready
   datareader.preferred_language: pl
 
 

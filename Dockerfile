@@ -35,14 +35,24 @@ ENV GRAPH_READY_FLAG=temp_graph_ready
 
 WORKDIR /opt/orr
 
+RUN apt-get update && apt-get install -y \
+    lsof \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=builder /build/target/railway_routing-1.0.0.jar ./app.jar
 
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 
 COPY config.yml .
+COPY poland-latest.osm.pbf .
 
-RUN mkdir -p logs flags graph-cache \
+RUN mkdir -p  \
+        logs \
+        flags \
+        graph-cache/graph-build \
+        graph-cache/graph-ready \
     && useradd -r -u 1001 orr \
     && chown -R orr:orr /opt/orr
 
