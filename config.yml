@@ -32,7 +32,7 @@ server:
   application_connectors:
   - type: http
     port: 9000
-    bind_host: localhost
+    bind_host: 0.0.0.0
     max_request_header_size: 50k
 
   request_log:

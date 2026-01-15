@@ -29,24 +29,19 @@ RUN mvn clean install
 
 FROM eclipse-temurin:17-jre-jammy
 
-ENV JAVA_OPTS="-Xms2g -Xmx4g"
-ENV NEW_MAP_FLAG=temp_new_map
-ENV GRAPH_READY_FLAG=temp_graph_ready
-
 WORKDIR /opt/orr
 
 RUN apt-get update && apt-get install -y \
+    curl \
     lsof \
     procps \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /build/target/railway_routing-1.0.0.jar ./app.jar
 
+COPY config.yml .
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
-
-COPY config.yml .
-COPY poland-latest.osm.pbf .
 
 RUN mkdir -p  \
         logs \

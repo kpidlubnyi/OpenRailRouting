@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
-NEW_MAP_FLAG="/opt/orr/flags/$NEW_MAP_FLAG"
-GRAPH_READY_FLAG="/opt/orr/flags/$GRAPH_READY_FLAG"
+ORR_NEW_MAP_FLAG_FILE="/opt/orr/flags/$ORR_NEW_MAP_FLAG_FILE"
+ORR_GRAPH_READY_FLAG_FILE="/opt/orr/flags/$ORR_GRAPH_READY_FLAG_FILE"
 ORR_PID=""
 
 
@@ -11,16 +11,35 @@ with_rebuilding() {
     REBUILDING=0
 }
 
+
 orr_echo(){
     echo "[ORR-WATCHDOG] $1"
 }
 
+
+download_osm() { 
+    DEST_PATH="./poland-latest.osm.pbf"
+
+    orr_echo "Downloading the latest OSM map of Poland to $DEST_PATH..."
+    curl -fsSL "$OSM_POLAND_URL" -o "$DEST_PATH"
+
+    echo "$DEST_PATH"
+}
+
+
 build_railway_graph() {
+    DOWNLOADED_OSM=$(download_osm)
+
     java $JAVA_OPTS -jar app.jar import -o graph-cache/graph-build config.yml
     mv ./graph-cache/graph-build/* ./graph-cache/graph-ready/
     orr_echo "Railway graph rebuild complete. Serving new graph..."
-    touch "$GRAPH_READY_FLAG"
-    rm -f "$NEW_MAP_FLAG"
+    touch "$ORR_GRAPH_READY_FLAG_FILE"
+    rm -f "$ORR_NEW_MAP_FLAG_FILE"
+
+    if [ -f "$DOWNLOADED_OSM" ]; then
+        orr_echo "Deleting OSM file $DOWNLOADED_OSM..."
+        rm -f "$DOWNLOADED_OSM"
+    fi
 }
 
 
@@ -56,7 +75,7 @@ serve_transit_graph() {
     java $JAVA_OPTS -jar app.jar serve config.yml &
     ORR_PID=$!
     
-    rm -f "$GRAPH_READY_FLAG"
+    rm -f "$ORR_GRAPH_READY_FLAG_FILE"
     orr_echo "ORR Server started with PID: $ORR_PID"
 }
 
@@ -71,12 +90,12 @@ while true; do
         ORR_PID=""
     fi
     
-    if [ -f "$NEW_MAP_FLAG" ]; then
+    if [ -f "$ORR_NEW_MAP_FLAG_FILE" ]; then
         orr_echo "Detected MAP flag. Rebuilding railway graph..."
         with_rebuilding build_railway_graph
     fi
     
-    if [ -f "$GRAPH_READY_FLAG" ]; then
+    if [ -f "$ORR_GRAPH_READY_FLAG_FILE" ]; then
         orr_echo "Detected new graph ready flag. Starting ORR Server..."
         serve_transit_graph
     fi
