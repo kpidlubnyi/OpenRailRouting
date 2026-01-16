@@ -40,8 +40,10 @@ RUN apt-get update && apt-get install -y \
 COPY --from=builder /build/target/railway_routing-1.0.0.jar ./app.jar
 
 COPY config.yml .
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
+
+COPY entrypoint.sh . 
+RUN sed -i 's/\r$//' entrypoint.sh \ 
+    && chmod +x entrypoint.sh
 
 RUN mkdir -p  \
         logs \
