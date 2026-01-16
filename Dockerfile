@@ -47,11 +47,7 @@ RUN mkdir -p  \
         logs \
         flags \
         graph-cache/graph-build \
-        graph-cache/graph-ready \
-    && useradd -r -u 1001 orr \
-    && chown -R orr:orr /opt/orr
-
-USER orr
+        graph-cache/graph-ready
 
 EXPOSE 9000
 
